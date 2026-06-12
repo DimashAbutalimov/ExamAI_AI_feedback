@@ -1,9 +1,95 @@
-# AI Review Analyzer
+# AI Review Analyzer — Анализ тональности отзывов с помощью AI
 
-Учебный fullstack-проект для анализа тональности текстовых отзывов с использованием AI-модели.
+Fullstack веб-приложение: форма ввода текста, AI-анализ тональности, история запросов и статистика в реальном времени.
 
+---
 
-## Структура проекта
+## Описание проекта
+
+**AI Review Analyzer** — учебный fullstack-проект, демонстрирующий построение клиент–серверного приложения с интеграцией реальной AI-модели на базе Hugging Face Transformers.
+
+Пользователь вводит текстовый отзыв, получает результат анализа тональности (`positive` / `neutral` / `negative`) с уровнем уверенности модели. Все результаты сохраняются в SQLite и доступны в истории запросов и панели статистики.
+
+---
+
+## Архитектура
+
+```mermaid
+flowchart LR
+    subgraph clients [Клиенты]
+        Web[React Frontend]
+    end
+
+    subgraph backend [Backend]
+        API[FastAPI REST API]
+        AI[Transformers Client]
+    end
+
+    subgraph storage [Хранение]
+        DB[(SQLite)]
+    end
+
+    subgraph external [Внешние сервисы]
+        HF[Hugging Face Model]
+    end
+
+    Web -->|HTTP REST| API
+    API --> DB
+    API --> AI
+    AI --> HF
+```
+
+---
+
+## Использованные технологии (для защиты)
+
+### Backend
+
+| Технология | Назначение в проекте |
+|------------|----------------------|
+| **Python 3** | Язык серверной части |
+| **FastAPI** | REST API, маршрутизация, документация Swagger |
+| **SQLModel** | ORM-слой поверх SQLAlchemy для работы с БД |
+| **SQLAlchemy** | Подключение и управление SQLite |
+| **Pydantic** | Валидация входных данных и схемы ответов |
+| **Hugging Face Transformers** | Загрузка и запуск AI-модели тональности |
+| **SQLite** | Встроенная реляционная БД: отзывы и результаты |
+| **Uvicorn** | ASGI-сервер для запуска FastAPI |
+
+### Frontend
+
+| Технология | Назначение в проекте |
+|------------|----------------------|
+| **React** | UI-компоненты, состояние, хуки |
+| **Vite** | Сборщик и dev-сервер |
+| **JavaScript** | Логика интерфейса |
+| **CSS** | Стилизация компонентов |
+| **Fetch API** | Запросы к FastAPI Backend |
+
+### Инфраструктура и инструменты
+
+| Технология | Назначение |
+|------------|------------|
+| **Git** | Контроль версий |
+| **npm** | Менеджер пакетов (frontend) |
+| **pip / venv** | Окружение Python |
+
+---
+
+## Функциональные возможности
+
+- Ввод произвольного текста и отправка на AI-анализ
+- Определение тональности: `positive`, `neutral`, `negative`
+- Отображение уровня уверенности модели (0.0–1.0)
+- Сохранение всех результатов в базе данных
+- Просмотр полной истории запросов
+- Панель статистики с разбивкой по тональности
+- Удаление отдельных записей из истории
+- Swagger-документация API (`/docs`)
+
+---
+
+## Структура репозитория
 
 ```
 ai-review-analyzer/
@@ -32,173 +118,113 @@ ai-review-analyzer/
 
 ---
 
-## ⚙️ Установка и запуск
+## Модель данных
 
-### Backend (FastAPI + SQLite + AI)
+```mermaid
+erDiagram
+    Feedback {
+        int id PK
+        string input_text
+        string sentiment
+        float confidence
+        datetime created_at
+    }
+```
+
+- **Feedback** — запись анализа: исходный текст, результат тональности и уверенность модели
+
+---
+
+## REST API
+
+| Метод | Endpoint | Описание | Авторизация |
+|-------|----------|----------|-------------|
+| POST | `/analyze` | Анализ текста и сохранение результата | Нет |
+| GET | `/results` | История всех анализов (от новых к старым) | Нет |
+| GET | `/stats` | Статистика по тональности | Нет |
+| DELETE | `/results/{id}` | Удаление записи по ID | Нет |
+
+---
+
+## Установка и запуск
+
+### Требования
+
+- Python 3.11+
+- Node.js 20+
+
+### 1. Backend
 
 ```bash
-# 1. Перейти в папку backend
-cd backend
+# Клонировать репозиторий
+git clone <url-репозитория>
+cd ai-review-analyzer/backend
 
-# 2. Создать и активировать виртуальное окружение (рекомендуется)
+# Виртуальное окружение
 python -m venv venv
-source venv/bin/activate        # Linux / macOS
-venv\Scripts\activate           # Windows
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # Linux / macOS
 
-# 3. Установить зависимости
 pip install -r requirements.txt
 
-# 4. Запустить сервер
+python manage.py migrate
 uvicorn main:app --reload --port 8000
 ```
 
-Backend запустится на: http://localhost:8000  
+Открыть: http://localhost:8000  
 Swagger документация: http://localhost:8000/docs
 
-> **Первый запуск** — модель `cardiffnlp/twitter-roberta-base-sentiment-latest` (~500MB)
-> скачивается автоматически с Hugging Face при первом запросе.
+> **Первый запуск** — модель `cardiffnlp/twitter-roberta-base-sentiment-latest` (~500 МБ) скачивается автоматически с Hugging Face при первом запросе.
 
----
-
-### Frontend (React + Vite)
+### 2. Frontend (React + Vite)
 
 ```bash
-# 1. Перейти в папку frontend
 cd frontend
-
-# 2. Установить зависимости
 npm install
-
-# 3. (опционально) Создать .env файл
-cp .env.example .env
-# При необходимости изменить VITE_API_URL=http://localhost:8000
-
-# 4. Запустить dev-сервер
 npm run dev
 ```
 
-Frontend запустится на: http://localhost:5173
+Открыть: http://localhost:5173
 
 ---
 
-## 🌐 API Endpoints
+## Переменные окружения
 
-### `POST /analyze`
-Принимает текст, запускает AI-анализ, сохраняет в БД.
+Файл `.env` в папке `frontend/` (опционально):
 
-**Request:**
-```json
-{ "text": "This product is absolutely amazing!" }
-```
-
-**Response:**
-```json
-{
-  "id": 1,
-  "input_text": "This product is absolutely amazing!",
-  "sentiment": "positive",
-  "confidence": 0.9821,
-  "created_at": "2024-01-15T10:30:00"
-}
+```env
+VITE_API_URL=http://localhost:8000
 ```
 
 ---
 
-### `GET /results`
-Возвращает историю всех анализов (от новых к старым).
+## AI-модель
 
-**Response:**
-```json
-[
-  {
-    "id": 2,
-    "input_text": "Terrible experience, never coming back.",
-    "sentiment": "negative",
-    "confidence": 0.9435,
-    "created_at": "2024-01-15T10:35:00"
-  },
-  ...
-]
-```
-
----
-
-### `GET /stats`
-Статистика по тональности.
-
-**Response:**
-```json
-{
-  "positive": 5,
-  "neutral": 2,
-  "negative": 3,
-  "total": 10
-}
-```
-
----
-
-### `DELETE /results/{id}`
-Удаляет запись по ID.
-
-**Response:**
-```json
-{ "message": "Feedback #1 deleted" }
-```
-
----
-
-## 🤖 AI Модель
-
-- **Модель:** `cardiffnlp/twitter-roberta-base-sentiment-latest`
-- **Тип:** RoBERTa, обученная на ~124M твитов
-- **Классы:** `positive`, `neutral`, `negative`
-- **Библиотека:** Hugging Face `transformers`
+| Параметр | Значение |
+|----------|----------|
+| **Модель** | `cardiffnlp/twitter-roberta-base-sentiment-latest` |
+| **Тип** | RoBERTa, обученная на ~124M твитов |
+| **Классы** | `positive`, `neutral`, `negative` |
+| **Библиотека** | Hugging Face `transformers` |
 
 Модель загружается один раз при старте сервера и переиспользуется для всех запросов.
 
 ---
 
-## 🗄️ База данных
+## Безопасность
 
-SQLite файл `reviews.db` создаётся автоматически в папке `backend/`.
-
-Схема таблицы `feedback`:
-
-| Поле         | Тип       | Описание                    |
-|--------------|-----------|-----------------------------|
-| `id`         | INTEGER   | Первичный ключ, автоинкремент|
-| `input_text` | VARCHAR   | Исходный текст              |
-| `sentiment`  | VARCHAR   | positive / neutral / negative|
-| `confidence` | FLOAT     | Уверенность модели 0.0–1.0  |
-| `created_at` | DATETIME  | Дата и время анализа        |
+- Валидация входных данных через Pydantic
+- Каждый запрос изолирован — нет пользовательских сессий
+- Секреты (при необходимости) вынесены в `.env` (не коммитятся в Git)
 
 ---
 
-## 🏗️ Архитектура (для защиты)
+## Автор
 
-```
-[React Frontend]
-      │
-      │ HTTP (fetch API)
-      ▼
-[FastAPI Backend]
-      │
-      ├── POST /analyze
-      │     ├── Валидация (Pydantic)
-      │     ├── AI анализ (Transformers)
-      │     └── Сохранение (SQLModel → SQLite)
-      │
-      ├── GET /results  → Чтение из БД
-      ├── GET /stats    → Агрегация по БД
-      └── DELETE /results/{id} → Удаление из БД
-```
 
-**Поток данных:**
-1. Пользователь вводит текст в форму (React)
-2. Frontend отправляет `POST /analyze` на FastAPI
-3. Backend валидирует текст через Pydantic
-4. AI-модель (Transformers) анализирует тональность
-5. Результат сохраняется в SQLite через SQLModel
-6. Ответ возвращается на Frontend
-7. Frontend обновляет историю (`GET /results`) и статистику (`GET /stats`)
+
+---
+
+## Лицензия
+
+Учебный проект. Использование — в образовательных целях.
