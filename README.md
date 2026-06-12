@@ -1,6 +1,3 @@
-<img width="1901" height="918" alt="Снимок экрана 2026-06-12 162600" src="https://github.com/user-attachments/assets/fb411eb5-36c6-4595-b130-388c7c54bf13" />
-<img width="1900" height="915" alt="Снимок экрана 2026-06-12 162636" src="https://github.com/user-attachments/assets/442c06d9-64e5-42a1-a642-e35997ae45d5" />
-<img width="1895" height="915" alt="Снимок экрана 2026-06-12 161549" src="https://github.com/user-attachments/assets/f9e46044-0785-44af-b3c3-1793e89f10b4" />
 # AI Review Analyzer — Анализ тональности отзывов с помощью AI
 
 Fullstack веб-приложение: форма ввода текста, AI-анализ тональности, история запросов и статистика в реальном времени.
@@ -231,6 +228,6 @@ VITE_API_URL=http://localhost:8000
 ## Лицензия
 
 Учебный проект. Использование — в образовательных целях.
-<img width="1895" height="915" alt="Снимок экрана 2026-06-12 161549" src="https://github.com/user-attachments/assets/593e5731-37a0-4fcd-96bb-9577c10f47eb" />
-<img width="1900" height="915" alt="Снимок экрана 2026-06-12 162636" src="https://github.com/user-attachments/assets/0a6c665e-0b3e-4cdd-bc7d-3af66d5e69eb" />
-<img width="1901" height="918" alt="Снимок экрана 2026-06-12 162600" src="https://github.com/user-attachments/assets/fbe4c298-713c-468c-9028-86c178930442" />
+<img width="1901" height="918" alt="Снимок экрана 2026-06-12 162600" src="https://github.com/user-attachments/assets/fb411eb5-36c6-4595-b130-388c7c54bf13" />
+<img width="1900" height="915" alt="Снимок экрана 2026-06-12 162636" src="https://github.com/user-attachments/assets/442c06d9-64e5-42a1-a642-e35997ae45d5" />
+<img width="1895" height="915" alt="Снимок экрана 2026-06-12 161549" src="https://github.com/user-attachments/assets/f9e46044-0785-44af-b3c3-1793e89f10b4" />
